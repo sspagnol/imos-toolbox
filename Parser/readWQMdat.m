@@ -242,41 +242,31 @@ function sample_data = readWQMdat( filename )
   durationBurst = zeros(nBurst, 1);
   for i=1:nBurst
       timeBurst = time(iBurst(i):iBurst(i+1)-1);
-      if numel(timeBurst)>1 % deals with the case of a file with a single sample in a single burst
-          sampleIntervalInBurst(i) = median(diff(timeBurst*24*3600));
-          firstTimeBurst(i) = timeBurst(1);
-          durationBurst(i) = (timeBurst(end) - timeBurst(1))*24*3600;
-      end
+      sampleIntervalInBurst(i) = median(diff(timeBurst*24*3600));
+      firstTimeBurst(i) = timeBurst(1);
+      durationBurst(i) = (timeBurst(end) - timeBurst(1))*24*3600;
   end
   
   sample_data.meta.instrument_sample_interval   = round(median(sampleIntervalInBurst));
   sample_data.meta.instrument_burst_interval    = round(median(diff(firstTimeBurst*24*3600)));
   sample_data.meta.instrument_burst_duration    = round(median(durationBurst));
   
-  if sample_data.meta.instrument_sample_interval == 0, sample_data.meta.instrument_sample_interval = NaN; end
-  if sample_data.meta.instrument_burst_interval  == 0, sample_data.meta.instrument_burst_interval  = NaN; end
-  if sample_data.meta.instrument_burst_duration  == 0, sample_data.meta.instrument_burst_duration  = NaN; end
-  
   sample_data.dimensions{1}.name            = 'TIME';
   sample_data.dimensions{1}.typeCastFunc    = str2func(netcdf3ToMatlabType(imosParameters(sample_data.dimensions{1}.name, 'type')));
   sample_data.dimensions{1}.data            = sample_data.dimensions{1}.typeCastFunc(time);
   
-  sample_data.variables{end+1}.name           = 'TIMESERIES';
-  sample_data.variables{end}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{end}.name, 'type')));
-  sample_data.variables{end}.data             = sample_data.variables{end}.typeCastFunc(1);
-  sample_data.variables{end}.dimensions       = [];
-  sample_data.variables{end+1}.name           = 'LATITUDE';
-  sample_data.variables{end}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{end}.name, 'type')));
-  sample_data.variables{end}.data             = sample_data.variables{end}.typeCastFunc(NaN);
-  sample_data.variables{end}.dimensions       = [];
-  sample_data.variables{end+1}.name           = 'LONGITUDE';
-  sample_data.variables{end}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{end}.name, 'type')));
-  sample_data.variables{end}.data             = sample_data.variables{end}.typeCastFunc(NaN);
-  sample_data.variables{end}.dimensions       = [];
-  sample_data.variables{end+1}.name           = 'NOMINAL_DEPTH';
-  sample_data.variables{end}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{end}.name, 'type')));
-  sample_data.variables{end}.data             = sample_data.variables{end}.typeCastFunc(NaN);
-  sample_data.variables{end}.dimensions       = [];
+  sample_data.variables{1}.dimensions       = [];
+  sample_data.variables{1}.name             = 'LATITUDE';
+  sample_data.variables{1}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{1}.name, 'type')));
+  sample_data.variables{1}.data             = sample_data.variables{1}.typeCastFunc(NaN);
+  sample_data.variables{2}.dimensions       = [];
+  sample_data.variables{2}.name             = 'LONGITUDE';
+  sample_data.variables{2}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{2}.name, 'type')));
+  sample_data.variables{2}.data             = sample_data.variables{2}.typeCastFunc(NaN);
+  sample_data.variables{3}.dimensions       = [];
+  sample_data.variables{3}.name             = 'NOMINAL_DEPTH';
+  sample_data.variables{3}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{3}.name, 'type')));
+  sample_data.variables{3}.data             = sample_data.variables{3}.typeCastFunc(NaN);
 
   % create a variables struct in sample_data for each field in the file
   % start index at 4 to skip serial, date and time

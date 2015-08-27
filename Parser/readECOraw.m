@@ -106,7 +106,7 @@ if any(iNoLastColumn)
 end
 
 % get rid of any line which date is not in the format mm/dd/yy
-control = regexp(samples{1}, '^[0-1]\d/[0-3]\d/\d\d', 'match');
+control = regexp(strtrim(samples{1}), '^[0-1]\d/[0-3]\d/\d\d', 'match');
 iDateNoGood1 = cellfun('isempty', control);
 if any(iDateNoGood1)
     for i=1:nColumns
@@ -206,22 +206,18 @@ sample_data.dimensions{1}.name          = 'TIME';
 sample_data.dimensions{1}.typeCastFunc  = str2func(netcdf3ToMatlabType(imosParameters(sample_data.dimensions{1}.name, 'type')));
 sample_data.dimensions{1}.data          = sample_data.dimensions{1}.typeCastFunc(time);
 
-sample_data.variables{end+1}.name           = 'TIMESERIES';
-sample_data.variables{end}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{end}.name, 'type')));
-sample_data.variables{end}.data             = sample_data.variables{end}.typeCastFunc(1);
-sample_data.variables{end}.dimensions       = [];
-sample_data.variables{end+1}.name           = 'LATITUDE';
-sample_data.variables{end}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{end}.name, 'type')));
-sample_data.variables{end}.data             = sample_data.variables{end}.typeCastFunc(NaN);
-sample_data.variables{end}.dimensions       = [];
-sample_data.variables{end+1}.name           = 'LONGITUDE';
-sample_data.variables{end}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{end}.name, 'type')));
-sample_data.variables{end}.data             = sample_data.variables{end}.typeCastFunc(NaN);
-sample_data.variables{end}.dimensions       = [];
-sample_data.variables{end+1}.name           = 'NOMINAL_DEPTH';
-sample_data.variables{end}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{end}.name, 'type')));
-sample_data.variables{end}.data             = sample_data.variables{end}.typeCastFunc(NaN);
-sample_data.variables{end}.dimensions       = [];
+sample_data.variables{1}.dimensions    = [];
+sample_data.variables{1}.name          = 'LATITUDE';
+sample_data.variables{1}.typeCastFunc  = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{1}.name, 'type')));
+sample_data.variables{1}.data          = sample_data.variables{1}.typeCastFunc(NaN);
+sample_data.variables{2}.dimensions    = [];
+sample_data.variables{2}.name          = 'LONGITUDE';
+sample_data.variables{2}.typeCastFunc  = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{2}.name, 'type')));
+sample_data.variables{2}.data          = sample_data.variables{2}.typeCastFunc(NaN);
+sample_data.variables{3}.dimensions    = [];
+sample_data.variables{3}.name          = 'NOMINAL_DEPTH';
+sample_data.variables{3}.typeCastFunc  = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{3}.name, 'type')));
+sample_data.variables{3}.data          = sample_data.variables{3}.typeCastFunc(NaN);
 
 for i=1:nColumns
     [name, comment, data] = getParamDetails(deviceInfo.columns{i}, samples{i});

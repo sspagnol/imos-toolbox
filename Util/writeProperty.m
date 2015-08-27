@@ -73,8 +73,8 @@ if isempty(propFilePath), propFilePath = pwd; end
 
 [filePath fileName fileExt] = fileparts(file);
 
-oldFile = fullfile(propFilePath, file);
-newFile = fullfile(propFilePath, filePath, ['.' fileName fileExt]);
+oldFile = [propFilePath filesep file];
+newFile = [propFilePath filesep filePath filesep '.' fileName '.' fileExt];
 
 % open old file for reading
 fid  = fopen(oldFile, 'rt');

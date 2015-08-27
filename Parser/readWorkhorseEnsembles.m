@@ -136,58 +136,55 @@ clear nLen;
 % but at this point nBytes could be as big as FFFFh so ...
 % to compute Crc sum over each ensemble
 
-% idx is the start of the sum sequence, iend is the end
-iend = idx+nBytes-1;
-nEnsemble = length(idx);
-calcCrc = NaN(nEnsemble, 1);
-
-% Let's consider memory issues
+% !!! double(data) may be too big to be handled with current free memory
 ctype = computer;
+
 switch ctype
-    case {'PCWIN', 'PCWIN64'}
+    case 'PCWIN'
+        % Let's consider memory issues
         userview = memory;
         
         % 10% margin
         bytesAvailable = userview.MaxPossibleArrayBytes - 10*userview.MaxPossibleArrayBytes/100;
         
+        % let's see if cumsum(double(data)) fit
+        bytesNeeded = lenData*8 * 2;
+        if bytesNeeded < bytesAvailable
+            dataSum = uint32(cumsum(double(data)));
+        else
+            % we have to chop the process in a number of times the current free memory
+            % allow us to, with the hack of casting dataSum in uint32
+            n = ceil((bytesNeeded) / bytesAvailable);
+            dataSum = [];
+            for i=1:n
+                iStart = floor((i-1)*lenData/n) + 1;
+                iEnd   = floor(i*lenData/n);
+                if isempty(dataSum)
+                    dataSum = uint32(cumsum(double(data(iStart:iEnd))));
+                else
+                    dataSum = [dataSum; uint32(cumsum(double(data(iStart:iEnd))))+dataSum(end)];
+                end
+            end
+        end
+        
     otherwise
-        % Matlab memory function is not available on Linux
-        cmdFree = 'free -b | grep "Mem:"';
-        freeFormat = '%*s%*u%*u%u%*u%*u%*u%*u';
-        [~, mem] = system(cmdFree);
-        
-        bytesAvailable = sscanf(mem, freeFormat);
-        
-        % 10% margin
-        bytesAvailable = bytesAvailable - 10*bytesAvailable/100;
-        
+        % We suppose we can read the whole file at once without any memory
+        % trouble
+        dataSum = uint32(cumsum(double(data)));
 end
 
-% let's see if double(data) and cumsum(double(data)) could fit in memory
-bytesNeeded = lenData*8 * 2;
-if bytesNeeded < bytesAvailable
-    % we perform a vectorized (faster) cumsum in memory. The drawback is that only
-    % cumsum can be used, not sum, so we will have to extract the sum over
-    % each ensemble later.
-    dataSum = cumsum(double(data));
-    
-    % following formula gives sum for each ensemble between idx and iend
-    calcCrc = double(data(idx)) + double(dataSum(iend) - dataSum(idx));
-    clear dataSum;
-else
-    % we cannot vectorize due to memory limitation so we make a loop (slower) 
-    % over which we compute straight the sum over the ensemble.
-    for i=1:nEnsemble
-        calcCrc(i) = sum(data(idx(i):iend(i)));
-    end
-end
+% idx is the start of the sum sequence, iend is the end
+iend = idx+nBytes-1;
+
+% following formula gives total sum between idx and iend
+calcCrc = double(data(idx)) + double(dataSum(iend) - dataSum(idx));
+clear dataSum;
 
 % this is the checksum formula
 calcCrc = bitand(calcCrc, 65535);
 
 % only good ensembles should pass the checksum test
 good = (calcCrc == givenCrc);
-clear calcCrc givenCrc;
 
 % define ensemble variables
 idx     = idx(good);
@@ -230,11 +227,10 @@ nDataTypes = double(data(idx+5));
 
 % in each ensemble bytes 6:2*nDataTypes give offsets to data
 dataOffsets = indexData(data, idx+6, idx+6+2*nDataTypes-1, 'uint16', cpuEndianness);
-i = size(dataOffsets, 1);
+[i j] = size(dataOffsets);
 
 % create a big index matrix!
 IDX = meshgrid(idx, 1:i) + dataOffsets;
-clear dataOffsets;
 
 % get rid of possible NaN
 iNaN = isnan(IDX);
@@ -242,7 +238,6 @@ IDXnoNan = IDX(~iNaN);
 
 % what type of sections do we have in each ensemble;
 sType = indexData(data, IDXnoNan(:), IDXnoNan(:)+1, 'uint16', cpuEndianness);
-clear IDXnoNan;
 
 iFixedLeader    = IDX(sType == 0);
 iVarLeader      = IDX(sType == 128);
@@ -253,15 +248,13 @@ iPCgood         = IDX(sType == 1024);
 %iStatProf      = IDX(sType == 1280);
 iBTrack         = IDX(sType == 1536);
 %iMicroCat      = IDX(sType == 2048);
-clear IDX sType;
 
 % major change to PM code - ensembles is a scalar structure not cell array
 ensembles.fixedLeader       = parseFixedLeader(data, iFixedLeader, cpuEndianness);
 ensembles.variableLeader    = parseVariableLeader(data, iVarLeader, cpuEndianness);
 
 % subfields contain the vector time series
-% we set a static value for nCells to the most frequent value found
-nCells = mode(ensembles.fixedLeader.numCells);
+nCells = ensembles.fixedLeader.numCells;
 
 ensembles.velocity          = parseVelocity(data, nCells, iVel, cpuEndianness);
 
@@ -292,14 +285,12 @@ function dsub = indexData(data, istart, iend, dtype, cpuEndianness)
 % create matrix of indicies
 width = max(iend-istart+1);
 
-[I, J]  = meshgrid(istart, 0:width-1);
+[I J]   = meshgrid(istart, 0:width-1);
 K       = meshgrid(iend,   0:width-1);
 
 IND = I + J;
-clear I J;
 
 ibad = IND > K;
-clear K;
 
 if any(any(ibad))
     % We assume that if an ensemble contain one bad data, all data are bad
@@ -336,43 +327,19 @@ function [sect len] = parseFixedLeader(data, idx, cpuEndianness)
 %   len  - number of bytes that were parsed.
 %
 
+% assume that fixed means fixed and only store fixed data from first frame!
+idx=idx(1);
+
   sect = struct;
   len = 59;
   
   sect.fixedLeaderId       = indexData(data, idx, idx+1, 'uint16', cpuEndianness)';
   sect.cpuFirmwareVersion  = double(data(idx+2));
   sect.cpuFirmwareRevision = double(data(idx+3));
-  % system configuration
-% LSB
-% BITS 7 6 5 4 3 2 1 0
-% - - - - - 0 0 0 75-kHz SYSTEM
-% - - - - - 0 0 1 150-kHz SYSTEM
-% - - - - - 0 1 0 300-kHz SYSTEM
-% - - - - - 0 1 1 600-kHz SYSTEM
-% - - - - - 1 0 0 1200-kHz SYSTEM
-% - - - - - 1 0 1 2400-kHz SYSTEM
-% - - - - 0 - - - CONCAVE BEAM PAT.
-% - - - - 1 - - - CONVEX BEAM PAT.
-% - - 0 0 - - - - SENSOR CONFIG #1
-% - - 0 1 - - - - SENSOR CONFIG #2
-% - - 1 0 - - - - SENSOR CONFIG #3
-% - 0 - - - - - - XDCR HD NOT ATT.
-% - 1 - - - - - - XDCR HD ATTACHED
-% 0 - - - - - - - DOWN FACING BEAM
-% 1 - - - - - - - UP-FACING BEAM
-% MSB
-% BITS 7 6 5 4 3 2 1 0
-% - - - - - - 0 0 15E BEAM ANGLE
-% - - - - - - 0 1 20E BEAM ANGLE
-% - - - - - - 1 0 30E BEAM ANGLE
-% - - - - - - 1 1 OTHER BEAM ANGLE
-% 0 1 0 0 - - - - 4-BEAM JANUS CONFIG
-% 0 1 0 1 - - - - 5-BM JANUS CFIG DEMOD)
-% 1 1 1 1 - - - - 5-BM JANUS CFIG.(2 DEMD)
   LSB = dec2bin(double(data(idx+4)));
   MSB = dec2bin(double(data(idx+5)));
-  while(size(LSB, 2) < 8), LSB = [repmat('0', size(LSB, 1), 1) LSB]; end
-  while(size(MSB, 2) < 8), MSB = [repmat('0', size(MSB, 1), 1) MSB]; end
+  while(length(LSB) < 8), LSB = ['0' LSB]; end
+  while(length(MSB) < 8), MSB = ['0' MSB]; end
   sect.systemConfiguration = [LSB MSB];
   sect.realSimFlag         = double(data(idx+6));
   sect.lagLength           = double(data(idx+7));
@@ -390,22 +357,12 @@ function [sect len] = parseFixedLeader(data, idx, cpuEndianness)
   sect.tppMinutes          = double(data(idx+22));
   sect.tppSeconds          = double(data(idx+23));
   sect.tppHundredths       = double(data(idx+24));
-  % EX/coordinate transform
-  % xxx00xxx = NO TRANSFORMATION (BEAM COORDINATES)
-  % xxx01xxx = INSTRUMENT COORDINATES
-  % xxx10xxx = SHIP COORDINATES
-  % xxx11xxx = EARTH COORDINATES
-  % xxxxx1xx = TILTS (PITCH AND ROLL) USED IN SHIP OR EARTH TRANSFORMATION
-  % xxxxxx1x = 3-BEAM SOLUTION USED IF ONE BEAM IS BELOW THE CORRELATION THRESHOLD SET BY THE WC command
-  % xxxxxxx1 = BIN MAPPING USED
   sect.coordinateTransform = double(data(idx+25));
   block                    = indexData(data, idx+26, idx+29, 'int16', cpuEndianness)';
   sect.headingAlignment    = block(:,1);
   sect.headingBias         = block(:,2);
-  sect.sensorSource        = dec2bin(double(data(idx+30)));
-  while(size(sect.sensorSource, 2) < 8), sect.sensorSource = [repmat('0', size(sect.sensorSource, 1), 1) sect.sensorSource]; end
-  sect.sensorsAvailable    = dec2bin(double(data(idx+31)));
-  while(size(sect.sensorsAvailable, 2) < 8), sect.sensorsAvailable = [repmat('0', size(sect.sensorsAvailable, 1), 1) sect.sensorsAvailable]; end
+  sect.sensorSource        = double(data(idx+30));
+  sect.sensorsAvailable    = double(data(idx+31));
   block                    = indexData(data, idx+32, idx+35, 'uint16', cpuEndianness)';
   sect.bin1Distance        = block(:,1);
   sect.xmitPulseLength     = block(:,2);
@@ -420,13 +377,12 @@ function [sect len] = parseFixedLeader(data, idx, cpuEndianness)
   % byte 54 is spare
   % following two fields are not used for Firmware before 16.30
   
-  if all(sect.cpuFirmwareVersion >= 16) && all(sect.cpuFirmwareRevision >= 30)
-      sect.instSerialNumber    = indexData(data, idx+54, idx+57, 'uint32', cpuEndianness)';
+  if (sect.cpuFirmwareVersion >= 16) && (sect.cpuFirmwareRevision >= 30)
+      sect.instSerialNumber    = num2str(uint32(bytecast(data(idx+54:idx+57), 'L', 'uint32', cpuEndianness)));
       sect.beamAngle           = double(data(idx+58));
   else
-      nEnsemble = length(idx);
-      sect.instSerialNumber    = NaN(nEnsemble, 1);
-      sect.beamAngle           = NaN(nEnsemble, 1);
+      sect.instSerialNumber    = '';
+      sect.beamAngle           = NaN;
   end
 end
 
@@ -447,7 +403,7 @@ function [sect len] = parseVariableLeader( data, idx, cpuEndianness )
   
   block                       = indexData(data,idx,idx+3, 'uint16', cpuEndianness)';
   sect.variableLeaderId       = block(:,1);
-  sect.ensembleNumber16bit    = block(:,2);
+  sect.ensembleNumber         = block(:,2);
   sect.rtcYear                = double(data(idx+4));
   sect.rtcMonth               = double(data(idx+5));
   sect.rtcDay                 = double(data(idx+6));
@@ -456,8 +412,6 @@ function [sect len] = parseVariableLeader( data, idx, cpuEndianness )
   sect.rtcSecond              = double(data(idx+9));
   sect.rtcHundredths          = double(data(idx+10));
   sect.ensembleMsb            = double(data(idx+11));
-  %
-  sect.ensembleNumber         = sect.ensembleMsb*65536 + sect.ensembleNumber16bit;
   block                       = indexData(data,idx+12,idx+19, 'uint16', cpuEndianness)';
   sect.bitResult              = block(:,1);
   sect.speedOfSound           = block(:,2);

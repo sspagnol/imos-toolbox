@@ -168,22 +168,18 @@ function sample_data = readWQMraw( filename )
   sample_data.dimensions{1}.typeCastFunc    = str2func(netcdf3ToMatlabType(imosParameters(sample_data.dimensions{1}.name, 'type')));
   sample_data.dimensions{1}.data            = sample_data.dimensions{1}.typeCastFunc(time);
   
-  sample_data.variables{end+1}.name           = 'TIMESERIES';
-  sample_data.variables{end}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{end}.name, 'type')));
-  sample_data.variables{end}.data             = sample_data.variables{end}.typeCastFunc(1);
-  sample_data.variables{end}.dimensions       = [];
-  sample_data.variables{end+1}.name           = 'LATITUDE';
-  sample_data.variables{end}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{end}.name, 'type')));
-  sample_data.variables{end}.data             = sample_data.variables{end}.typeCastFunc(NaN);
-  sample_data.variables{end}.dimensions       = [];
-  sample_data.variables{end+1}.name           = 'LONGITUDE';
-  sample_data.variables{end}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{end}.name, 'type')));
-  sample_data.variables{end}.data             = sample_data.variables{end}.typeCastFunc(NaN);
-  sample_data.variables{end}.dimensions       = [];
-  sample_data.variables{end+1}.name           = 'NOMINAL_DEPTH';
-  sample_data.variables{end}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{end}.name, 'type')));
-  sample_data.variables{end}.data             = sample_data.variables{end}.typeCastFunc(NaN);
-  sample_data.variables{end}.dimensions       = [];
+  sample_data.variables{1}.dimensions       = [];
+  sample_data.variables{1}.name             = 'LATITUDE';
+  sample_data.variables{1}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{1}.name, 'type')));
+  sample_data.variables{1}.data             = sample_data.variables{1}.typeCastFunc(NaN);
+  sample_data.variables{2}.dimensions       = [];
+  sample_data.variables{2}.name             = 'LONGITUDE';
+  sample_data.variables{2}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{2}.name, 'type')));
+  sample_data.variables{2}.data             = sample_data.variables{2}.typeCastFunc(NaN);
+  sample_data.variables{3}.dimensions       = [];
+  sample_data.variables{3}.name             = 'NOMINAL_DEPTH';
+  sample_data.variables{3}.typeCastFunc     = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{3}.name, 'type')));
+  sample_data.variables{3}.data             = sample_data.variables{3}.typeCastFunc(NaN);
   
   % create a variables struct in sample_data for each field in the file
   isUmolPerL = false;
@@ -316,7 +312,7 @@ function sample_data = readWQMraw( filename )
           sample_data.variables{end}.name                   = name;
           sample_data.variables{end}.typeCastFunc           = str2func(netcdf3ToMatlabType(imosParameters(sample_data.variables{end}.name, 'type')));
           sample_data.variables{end}.data                   = sample_data.variables{end}.typeCastFunc(data);
-          sample_data.variables{end}.coordinates            = 'TIME LATITUDE LONGITUDE NOMINAL_DEPTH';
+          sample_data.variables{end}.coordinates            = 'TIME LATITUDE LONGITUDE';
       end
   end
 end

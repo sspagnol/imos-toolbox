@@ -67,11 +67,11 @@ function [graphs lines vars] = graphTimeSeries( parent, sample_data, vars )
   
   switch mode
       case 'profile'
-          % we don't want to plot TIME, PROFILE, DIRECTION, LATITUDE, LONGITUDE, BOT_DEPTH
-          p = getVar(sample_data.variables, 'BOT_DEPTH');
+          % we don't want to plot TIME, DIRECTION, LATITUDE, LONGITUDE, BOT_DEPTH and DEPTH when it's a variable
+          p = 5;
       otherwise
-          % we don't want to plot TIMESERIES, PROFILE, TRAJECTORY, LATITUDE, LONGITUDE, NOMINAL_DEPTH
-          p = getVar(sample_data.variables, 'NOMINAL_DEPTH');
+          % we don't want to plot LATITUDE, LONGITUDE, NOMINAL_DEPTH
+          p = 3;
   end
   vars = vars + p;
   
@@ -104,13 +104,8 @@ function [graphs lines vars] = graphTimeSeries( parent, sample_data, vars )
     end
     switch func2str(plotFunc)
         case 'graphTimeSeriesGeneric'
-            varData = sample_data.variables{k}.data;
-            if ischar(varData), varData = str2num(varData); end % we assume data is an array of one single character
-            
-            minData = min(varData);
-            maxData = max(varData);
-            yLimits = [floor(minData*10)/10, ...
-                ceil(maxData*10)/10];
+            yLimits = [floor(min(sample_data.variables{k}.data)*10)/10, ...
+                ceil(max(sample_data.variables{k}.data)*10)/10];
             
             if sample_data.meta.level == 1
                 qcSet     = str2double(readProperty('toolbox.qc_set'));
@@ -121,13 +116,8 @@ function [graphs lines vars] = graphTimeSeries( parent, sample_data, vars )
                 iGood = sample_data.variables{k}.flags == goodFlag;
                 iGood = iGood | (sample_data.variables{k}.flags == rawFlag);
                 if any(iGood)
-                    varData = sample_data.variables{k}.data(iGood);
-                    if ischar(varData), varData = str2num(varData); end % we assume data is an array of one single character
-                    
-                    minData = min(varData);
-                    maxData = max(varData);
-                    yLimits = [floor(minData*10)/10, ...
-                        ceil(maxData*10)/10];
+                    yLimits = [floor(min(sample_data.variables{k}.data(iGood))*10)/10, ...
+                        ceil(max(sample_data.variables{k}.data(iGood))*10)/10];
                 end
             end
         case 'graphTimeSeriesTimeDepth'

@@ -231,62 +231,37 @@ function [sample_data rawFiles] = ddbImport(auto, iMooring)
         fprintf('%s\n', ['Warning : ' 'No entry found in ' mode ' table.']);
         return;
     end
-    
-    dSites = {deps.Site}';
-    dDescs = cell(size(dSites)); % no description for CTD casts without entry in Site table
-    if isfield(sits, 'Description')
-        sSites = {sits.Site}';
-        sDescs = {sits.Description}';
-        
+
+    if isfield(sits, 'Site')
         % in order to use unique on cell arrays of strings we need to replace any [] by ''
-        iEmpty = cellfun('isempty', sSites);
-        if any(iEmpty), sSites(iEmpty) = {''}; end
-        iEmpty = cellfun('isempty', sDescs);
-        if any(iEmpty), sDescs(iEmpty) = {''}; end
-    
-        [SitesWithDesc, u] = unique(sSites);
-        uniqueDescs = sDescs;
-        uniqueDescs = uniqueDescs(u);
-        nSitesWithDesc = length(SitesWithDesc);
-        for i=1:nSitesWithDesc
-            iWithDesc = strcmpi(SitesWithDesc(i), dSites);
-            if any(iWithDesc)
-                dDescs(iWithDesc) = uniqueDescs(i);
-            end
-        end
-    end
+        Sites = {sits.Site}';
+        Descs = {sits.Description}';
         
-    % in order to use unique on cell arrays of strings we need to replace any [] by ''
-    iEmpty = cellfun('isempty', dSites);
-    if any(iEmpty), dSites(iEmpty) = {''}; end
-    iEmpty = cellfun('isempty', dDescs);
-    if any(iEmpty), dDescs(iEmpty) = {''}; end
-    
-    % find the distinct sites involved
-    [siteId, iUnique] = unique(dSites);
-    siteDesc = dDescs(iUnique);
-    
-    [siteId, orderSites] = sort(siteId);
-    siteDesc = siteDesc(orderSites);
-    
-    nSite = length(siteId);
-    if nSite > 1 && ~auto
-        % we display an intermediate siteDialog
-        siteId = siteDialog(siteId, siteDesc);
+        iEmpty = cellfun('isempty', Sites);
+        if any(iEmpty), Sites(iEmpty) = {''}; end
+        iEmpty = cellfun('isempty', Descs);
+        if any(iEmpty), Descs(iEmpty) = {''}; end
         
-        if ~isempty(siteId)
-            % we remove the non-selected sites from the list
-            iSelectedSite = strcmpi(siteId, {deps.Site});
+        % find the distinct sites involved
+        [siteId, iUnique] = unique(Sites);
+        siteDesc = Descs(iUnique);
+        
+        [siteId, orderSites] = sort(siteId);
+        siteDesc = siteDesc(orderSites);
+        
+        nSite = length(siteId);
+        if nSite > 1 && ~auto
+            % we display an intermediate siteDialog
+            siteId = siteDialog(siteId, siteDesc);
             
-            switch mode
-                case 'profile'
-                    deps(~iSelectedSite) = [];
-                otherwise
-                    deps(~iSelectedSite) = [];
-                    sits(~iSelectedSite) = [];
+            if ~isempty(siteId)
+                % we remove the non-selected sites from the list
+                iSelectedSite = strcmpi(siteId, {sits.Site});
+                sits(~iSelectedSite) = [];
+                deps(~iSelectedSite) = [];
+            else
+                continue;
             end
-        else
-            continue;
         end
     end
     
@@ -361,8 +336,9 @@ function [sample_data rawFiles] = ddbImport(auto, iMooring)
                     sample_data{end}{m}.meta.profile = deps(k);
                 otherwise
                     sample_data{end}{m}.meta.deployment = deps(k);
-                    sample_data{end}{m}.meta.site = sits(k);
             end
+          
+            sample_data{end}{m}.meta.site = sits(k);
         end
         
       else
@@ -371,8 +347,9 @@ function [sample_data rawFiles] = ddbImport(auto, iMooring)
                   sample_data{end}.meta.profile = deps(k);
               otherwise
                   sample_data{end}.meta.deployment = deps(k);
-                  sample_data{end}.meta.site = sits(k);
           end
+        
+          sample_data{end}.meta.site = sits(k);
       end
     
       if auto
@@ -385,6 +362,7 @@ function [sample_data rawFiles] = ddbImport(auto, iMooring)
             case 'profile'
                 fprintf('%s\n',   ['Warning : skipping ' deps(k).FileName]);
                 fprintf('\t%s\n', ['FieldTrip = ' deps(k).FieldTrip]);
+                fprintf('\t%s\n', ['SiteName = ' sits(k).SiteName]);
                 fprintf('\t%s\n', ['Site = ' deps(k).Site]);
                 fprintf('\t%s\n', ['Station = ' deps(k).Station]);
                 fprintf('\t%s\n', ['InstrumentID = ' deps(k).InstrumentID]);

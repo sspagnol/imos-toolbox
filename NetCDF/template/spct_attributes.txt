@@ -1,5 +1,5 @@
 S, standard_name             = 
-S, long_name                 = [mat imosParameters('SPCT', 'long_name')]
+S, long_name                 = awac_spectra_calculation_method
 S, units                     = 
 S, calendar                  = 
 S, axis                      = 
@@ -21,5 +21,5 @@ N, accuracy                  =
 N, precision                 = 
 N, resolution                = 
 S, cell_methods              = 
-S, spectra_method_values     = 0 1 3
+Q, spectra_method_values     = 0 1 3
 S, spectra_method_meanings   = Pressure Velocity Acoustic_Surface_Tracking

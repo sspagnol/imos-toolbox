@@ -1,9 +1,9 @@
 S, standard_name             = 
-S, long_name                 = [mat imosParameters('HEIGHT_ABOVE_SENSOR', 'long_name')]
-S, units                     = [mat imosParameters('HEIGHT_ABOVE_SENSOR', 'uom')]
+S, long_name                 = height_above_sensor
+S, units                     = metres
 S, axis                      = Z
-S, positive                  = [mat imosParameters('HEIGHT_ABOVE_SENSOR', 'positive')]
-S, reference_datum           = [mat imosParameters('HEIGHT_ABOVE_SENSOR', 'reference_datum')]
+S, positive                  = up
+S, reference_datum           = sensor
 N, valid_min                 = [mat imosParameters('HEIGHT_ABOVE_SENSOR', 'valid_min')]
 N, valid_max                 = [mat imosParameters('HEIGHT_ABOVE_SENSOR', 'valid_max')]
 N, _FillValue                = [mat imosParameters('HEIGHT_ABOVE_SENSOR', 'fill_value')]

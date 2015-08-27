@@ -79,13 +79,14 @@ function exportManager(dataSets, levelNames, output, auto)
   % If no value is set then default mode is 'timeSeries'
   mode = lower(readProperty('toolbox.mode'));
   
-  setNames = {};
-  for k = 1:numSets
-      setNames{k} = genIMOSFileName(dataSets{1}{k}, suffix);
-  end
-    
   % prompt user for export directory, and data sets to export
   if ~auto
+    
+    setNames = {};
+    for k = 1:numSets
+      setNames{k} = genIMOSFileName(dataSets{1}{k}, suffix); 
+    end
+    
     [exportDir dataSets] = ...
       exportDialog(dataSets, levelNames, setNames, varOpts);
   else
@@ -124,10 +125,8 @@ function exportManager(dataSets, levelNames, output, auto)
       end
       
     catch e
-      % display file name for which we have an error
-      errorFile = [setNames{ceil(k / numLevels)} ': ' e.message];
-      errors = [errors errorFile];
-      disp(errorFile);
+      errors = [errors [setNames{ceil(k / numLevels)} ': ' e.message]];
+      
       % display the full error message
       fullError = sprintf('%s\r\n', e.message);
       s = e.stack;
@@ -248,7 +247,7 @@ paramsName = unique(paramsName);
 
 if strcmpi(mode, 'timeseries')
     % we get rid of specific parameters
-    notNeededParams = {'TIMESERIES', 'PROFILE', 'TRAJECTORY', 'LATITUDE', 'LONGITUDE', 'NOMINAL_DEPTH'};
+    notNeededParams = {'LATITUDE', 'LONGITUDE', 'NOMINAL_DEPTH'};
     for i=1:length(notNeededParams)
         iNotNeeded = strcmpi(paramsName, notNeededParams{i});
         paramsName(iNotNeeded) = [];

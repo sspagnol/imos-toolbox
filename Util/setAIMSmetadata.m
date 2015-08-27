@@ -18,7 +18,7 @@ switch metadataField
         elseif identifySite(site,{'NRSDAR'})
             AIMSmetadata = 'IMOS';
         else
-            AIMSmetadata = 'IMOS';
+            AIMSmetadata = 'AIMS';
         end
         return
         

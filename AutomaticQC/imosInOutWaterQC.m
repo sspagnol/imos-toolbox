@@ -68,9 +68,9 @@ if nargin<5, auto=false; end
 paramsLog = [];
 flags     = [];
 
-% this test doesn't apply on dimensions nor TIMESERIES, PROFILE, TRAJECTORY, LATITUDE, LONGITUDE, nor NOMINAL_DEPTH variables
+% this test doesn't apply on dimensions nor LATITUDE, LONGITUDE, nor NOMINAL_DEPTH variables
 if ~strcmp(type, 'variables'), return; end
-if any(strcmp(sample_data.(type){k}.name, {'TIMESERIES', 'PROFILE', 'TRAJECTORY', 'LATITUDE', 'LONGITUDE', 'NOMINAL_DEPTH'})), return; end
+if any(strcmp(sample_data.(type){k}.name, {'LATITUDE', 'LONGITUDE', 'NOMINAL_DEPTH'})), return; end
 
 time_in_water = sample_data.time_deployment_start;
 time_out_water = sample_data.time_deployment_end;
@@ -104,10 +104,10 @@ switch mode
         if ~strcmpi(sample_data.(type){k}.name, 'TIME'), return; end
         
         if time < time_in_water
-            error(['TIME value ' datestr(time, 'yyyy-mm-dd HH:MM:SS') ' is lower than time_deployment_start ' datestr(time_in_water, 'yyyy-mm-dd HH:MM:SS') ' => Check ddb station time values against data file time values!']);
+            error('TIME value is lower than time_deployment_start => Check ddb station time values against data file time values!');
         end
         if time > time_out_water
-            error(['TIME value ' datestr(time, 'yyyy-mm-dd HH:MM:SS') ' is greater than time_deployment_end ' datestr(time_out_water, 'yyyy-mm-dd HH:MM:SS') ' => Check ddb station time values against data file time values!']);
+            error('TIME value is greater than time_deployment_end => Check ddb station time values against data file time values!');
         end
         
     otherwise % 'timeSeries'

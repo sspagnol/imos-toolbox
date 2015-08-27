@@ -25,7 +25,7 @@ project = 'imos-toolbox'
 def submit(archive):
 
   user     = 'ggalibert'
-  server   = '10-nsp-mel.emii.org.au'
+  server   = '5-nsp-mel.emii.org.au'
   dir      = '/mnt/imos-t4/IMOS/public/eMII/softwares/imos-toolbox'
   http_url = 'http://data.aodn.org.au/IMOS/public/eMII/softwares/imos-toolbox/'
 
@@ -36,7 +36,7 @@ def submit(archive):
 
 version    = '2.4'
   
-url        = 'https://github.com/aodn/%s.git' % project
+url        = 'http://%s.googlecode.com/svn/trunk' % project
 exportDir  = 'export'
 stdArchive = 'imos-toolbox-%s.zip' % version
 
@@ -46,12 +46,13 @@ compilerLog = './%s/log.txt' % exportDir
 # export from SVN
 #
 print('\n--exporting tree from %s to %s' % (url, exportDir))
-os.system('git clone %s %s' % (url, exportDir))
+os.system('svn export %s %s' % (url, exportDir))
 
 #
-# remove snapshot directory
+# remove Tests and snapshot directories
 #
-print('\n--removing snapshot')
+print('\n--removing Tests and snapshot')
+shutil.rmtree('%s/Tests' % exportDir)
 shutil.rmtree('%s/snapshot' % exportDir)
 
 #
@@ -69,6 +70,6 @@ try:
 except:
   print('\n--Snapshot upload error. Check script, fix and then delete previous files before running new snapshot')
 
-print('\n--removing local git tree and archives')
+print('\n--removing local SVN tree and archives')
 shutil.rmtree('%s' % exportDir)
 os.remove(stdArchive)

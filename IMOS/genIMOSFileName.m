@@ -64,7 +64,7 @@ function filename = genIMOSFileName( sample_data, suffix )
   
   % get default config, and file config
   defCfg  = genDefaultFileNameConfig(sample_data, dateFmt, mode);
-  fileCfg = readFileNameConfig(sample_data);
+  fileCfg = readFileNameConfig(      sample_data, dateFmt);
   
   switch lower(mode)
       case 'profile'
@@ -176,12 +176,7 @@ function config = genDefaultFileNameConfig(sample_data, dateFmt, mode)
   config.data_code = sort(config.data_code);
   
   % <start_date>, <site_code>, <platform_code>, <file_version>
-  extraChar = '';
-  if strfind(dateFmt, 'Z') == length(dateFmt)
-      dateFmt = dateFmt(1:end-1);
-      extraChar = 'Z';
-  end
-  config.start_date    = [datestr(sample_data.time_coverage_start, dateFmt), extraChar];
+  config.start_date    = datestr(sample_data.time_coverage_start, dateFmt);
   
   config.site_code     = sample_data.site_code;
 
@@ -207,12 +202,12 @@ function config = genDefaultFileNameConfig(sample_data, dateFmt, mode)
   config.product_type(config.product_type == '_') = '-';
   
   % <end_date>, <creation_date>
-  config.end_date    = [datestr(sample_data.time_coverage_end, dateFmt), extraChar];
+  config.end_date    = datestr(sample_data.time_coverage_end, dateFmt);
   
-  config.creation_date = [datestr(sample_data.date_created, dateFmt), extraChar];
+  config.creation_date = datestr(sample_data.date_created, dateFmt);
 end
 
-function config = readFileNameConfig(sample_data)
+function config = readFileNameConfig(sample_data, dateFmt)
 %READFILENAMECONFIG Reads in the imosFileName.txt configuration file, and
 % returns the values contained within.
 %

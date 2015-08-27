@@ -266,7 +266,7 @@ function mainWindow(...
   delete(buttons);
   
   %set zoom/pan post-callback
-  %zoom v6 off; % undocumented Matlab to make sure zoom function prior to R14 is not used. Seems to not be supported from R2015a.
+  zoom v6 off;
   hZoom = zoom(fig);
   hPan = pan(fig);
   set(hZoom, 'ActionPostCallback', @zoomPostCallback);
@@ -507,13 +507,7 @@ function mainWindow(...
     iDEPTH = strcmpi(paramsName, 'DEPTH');
     paramsName(iDEPTH) = [];
 
-    % we get rid of TIMESERIES, PROFILE, TRAJECTORY, LATITUDE, LONGITUDE and NOMINAL_DEPTH parameters
-    iParam = strcmpi(paramsName, 'TIMESERIES');
-    paramsName(iParam) = [];
-    iParam = strcmpi(paramsName, 'PROFILE');
-    paramsName(iParam) = [];
-    iParam = strcmpi(paramsName, 'TRAJECTORY');
-    paramsName(iParam) = [];
+    % we get rid of LATITUDE, LONGITUDE and NOMINAL_DEPTH parameters
     iParam = strcmpi(paramsName, 'LATITUDE');
     paramsName(iParam) = [];
     iParam = strcmpi(paramsName, 'LONGITUDE');
@@ -564,7 +558,7 @@ function displayLineCastVar(source,ev, isQC)
                     paramsName{end+1} = sample_data{i}.variables{j}.name;
                 end
             end
-            % get rid of non QC'd params if only interested in QC
+            % get rid of non QC'd params if only intereste in QC
             if isQC && ~isParamQC; paramsName(end) = []; end
         end
     end
@@ -621,13 +615,7 @@ function displayScatterMooringVar(source,ev, isQC, is1D)
         iDEPTH = strcmpi('PRES_REL', paramsName);
         paramsName(iDEPTH) = [];
     
-        % we get rid of TIMESERIES, PROFILE, TRAJECTORY, LATITUDE, LONGITUDE and NOMINAL_DEPTH parameters
-        iParam = strcmpi(paramsName, 'TIMESERIES');
-        paramsName(iParam) = [];
-        iParam = strcmpi(paramsName, 'PROFILE');
-        paramsName(iParam) = [];
-        iParam = strcmpi(paramsName, 'TRAJECTORY');
-        paramsName(iParam) = [];
+        % we get rid of LATITUDE, LONGITUDE and NOMINAL_DEPTH parameters
         iParam = strcmpi(paramsName, 'LATITUDE');
         paramsName(iParam) = [];
         iParam = strcmpi(paramsName, 'LONGITUDE');
@@ -777,17 +765,17 @@ end
     
     switch mode
         case 'profile'
-            % we don't want to plot TIME, PROFILE, DIRECTION, LATITUDE, LONGITUDE, BOT_DEPTH
-            p = getVar(sam.variables, 'BOT_DEPTH');
+            % we don't want to plot TIME, DIRECTION, LATITUDE, LONGITUDE, BOT_DEPTH
+            p = 5;
                 
             % we don't want to plot DEPTH if it's a variable
-            iDepth = getVar(sam.variables, 'DEPTH');
-            if iDepth ~= 0
-                sam.variables(iDepth) = [];
+            depth = getVar(sam.variables, 'DEPTH');
+            if depth ~= 0
+                sam.variables(depth) = [];
             end
         otherwise
-            % we don't want to plot TIMESERIES, PROFILE, TRAJECTORY, LATITUDE, LONGITUDE, NOMINAL_DEPTH
-            p = getVar(sam.variables, 'NOMINAL_DEPTH');
+            % we don't want to plot LATITUDE, LONGITUDE, NOMINAL_DEPTH
+            p = 3;
     end
         
     % create checkboxes for new data set. The order in which the checkboxes

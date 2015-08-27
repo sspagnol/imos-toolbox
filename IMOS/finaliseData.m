@@ -87,12 +87,12 @@ function sam = finaliseData(sam, rawFiles, flagVal, toolboxVersion)
       if ~isfield(sam.meta, 'site_name'); sam.meta.site_name  = 'UNKNOWN';  end
       if ~isfield(sam.meta, 'site_id');   sam.meta.site_id    = 'UNKNOWN';  end
       if ~isfield(sam.meta, 'timezone');  sam.meta.timezone   = 'UTC';      end
-      if ~isfield(sam.meta, 'depth');     sam.meta.depth      = NaN;        end
       
       switch mode
           case 'profile'
               if ~isfield(sam.meta, 'survey');    sam.meta.survey     = 'UNKNOWN';  end
               if ~isfield(sam.meta, 'station');   sam.meta.station    = NaN;        end
+              if ~isfield(sam.meta, 'depth');     sam.meta.depth      = NaN;        end
               
       end
   end
@@ -111,7 +111,7 @@ function sam = finaliseData(sam, rawFiles, flagVal, toolboxVersion)
   for k = 1:length(sam.dimensions)
     
     if isfield(sam.dimensions{k}, 'flags'), continue; end
-    if any(strcmpi(sam.dimensions{k}.name, {'PROFILE', 'MAXZ'})), continue; end
+    if any(strcmpi(sam.dimensions{k}.name, {'INSTANCE', 'MAXZ'})), continue; end
     
     sam.dimensions{k}.flags(1:numel(sam.dimensions{k}.data)) = flagVal;
     sam.dimensions{k}.flags = reshape(...

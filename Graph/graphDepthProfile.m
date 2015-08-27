@@ -71,11 +71,11 @@ function [graphs lines vars] = graphDepthProfile( parent, sample_data, vars )
   
   switch mode
       case 'profile'
-          % we don't want to plot TIME, PROFILE, DIRECTION, LATITUDE, LONGITUDE, BOT_DEPTH
-          p = getVar(sample_data.variables, 'BOT_DEPTH');
+          % we don't want to plot TIME, DIRECTION, LATITUDE, LONGITUDE, BOT_DEPTH and DEPTH when it's a variable
+          p = 5;
       otherwise
-          % we don't want to plot TIMESERIES, PROFILE, TRAJECTORY, LATITUDE, LONGITUDE, NOMINAL_DEPTH
-          p = getVar(sample_data.variables, 'NOMINAL_DEPTH');
+          % we don't want to plot LATITUDE, LONGITUDE, NOMINAL_DEPTH
+          p = 3;
   end
   vars = vars + p;
   
