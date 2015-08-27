@@ -63,15 +63,15 @@ D, time_coverage_end            =
 % who
 S, data_centre                  = eMarine Information Infrastructure (eMII)
 S, data_centre_email            = info@emii.org.au
-S, author_email                 = 
-S, author                       = 
-S, principal_investigator       = 
-S, principal_investigator_email = 
-S, institution_references       = http://www.imos.org.au/emii.html
+S, author_email                 = adc@aims.gov.au
+S, author                       = Australian Institute of Marine Science
+S, principal_investigator       = [mat setAIMSmetadata('[ddb Site]','principal_investigator')]
+S, principal_investigator_email = [mat setAIMSmetadata('[ddb Site]','principal_investigator_email')]
+S, institution_references       = [mat setAIMSmetadata('[ddb Site]','institution_references')]
 
 % how
 S, lineage                 = Data were processed according to standard ANMN-NRS procedures before conversion to NetCDF. See link for details : http://help.aodn.org.au/help/sites/help.aodn.org.au/files/ANMN%20CTD%20Processing%20Procedures.pdf
 S, citation                = The citation in a list of references is: "IMOS [year-of-data-download], [Title], [data-access-URL], accessed [date-of-access].".
-S, acknowledgement         = Any users of IMOS data are required to clearly acknowledge the source of the material derived from IMOS in the format: "Data was sourced from the Integrated Marine Observing System (IMOS) - IMOS is a national collaborative research infrastructure, supported by the Australian Government." If relevant, also credit other organisations involved in collection of this particular datastream (as listed in 'credit' in the metadata record).
+S, acknowledgement         = [mat setAIMSmetadata('[ddb Site]','acknowledgement')]
 S, disclaimer              = Data, products and services from IMOS are provided "as is" without any warranty as to fitness for a particular purpose.
 S, license                 = http://creativecommons.org/licenses/by/4.0/

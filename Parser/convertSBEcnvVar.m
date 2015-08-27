@@ -94,7 +94,7 @@ switch name
       comment = '';
         
     % strain gauge pressure (dbar)
-    case {'pr', 'prM', 'prdM'}
+    case {'pr', 'prM', 'prdM', 'prDM'}
       name = 'PRES_REL';
       comment = '';
       
@@ -189,7 +189,12 @@ switch name
     case 'bat'
       name = 'BAT';
       comment = '';
-      
+
+    % Beam Transmission, Chelsea/Seatech [%]
+    case 'xmiss'
+      name = 'BATMISS';
+      comment = '';
+
     % turbidity (NTU)
     case {'obs', 'obs30x2B', 'turbWETntu0', 'upoly0'}
       name = 'TURB';

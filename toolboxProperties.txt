@@ -1,6 +1,6 @@
 % filename or ODBC DSN of MS-ACCESS deployment database
 % ex. : /home/ggalibert/OceanDB.mdb or imos-ddb
-toolbox.ddb = 
+toolbox.ddb = "D:\OceanDB2014\OceanDB2014.mdb"
 
 % or full connection details to other kind of deployment database :
 % class name of JDBC database driver
@@ -37,6 +37,8 @@ exportNetCDF.dateFormat = yyyy-mm-ddTHH:MM:SSZ
 exportNetCDF.fileDateFormat = yyyymmddTHHMMSSZ
 
 % default set of auto QC routines
+%autoQCManager.autoQCChain.timeSeries.default = imosImpossibleDateQC imosImpossibleLocationSetQC imosInOutWaterQC imosGlobalRangeQC imosImpossibleDepthQC imosSalinityFromPTQC imosSideLobeVelocitySetQC imosTiltVelocitySetQC imosHorizontalVelocitySetQC imosVerticalVelocityQC imosCorrMagVelocitySetQC imosHistoricalManualSetQC
+%autoQCManager.autoQCChain.profile.default = imosImpossibleDateQC imosImpossibleLocationSetQC imosInOutWaterQC imosGlobalRangeQC imosImpossibleDepthQC imosSalinityFromPTQC imosHistoricalManualSetQC
 autoQCManager.autoQCChain.timeSeries = imosImpossibleDateQC imosImpossibleLocationSetQC imosInOutWaterQC imosGlobalRangeQC imosImpossibleDepthQC imosSalinityFromPTQC imosSideLobeVelocitySetQC imosTiltVelocitySetQC imosHorizontalVelocitySetQC imosVerticalVelocityQC imosCorrMagVelocitySetQC imosHistoricalManualSetQC
 autoQCManager.autoQCChain.profile = imosImpossibleDateQC imosImpossibleLocationSetQC imosInOutWaterQC imosGlobalRangeQC imosImpossibleDepthQC imosSalinityFromPTQC imosHistoricalManualSetQC
 
@@ -56,20 +58,20 @@ dataFileStatusDialog.noFileFormat          = bold
 dataFileStatusDialog.multipleFileFormat    = italic
 
 % default values for start dialog
-startDialog.dataDir.timeSeries = 
+startDialog.dataDir.timeSeries = D:\Projects\IMOS\ITF\Moorings\Field\20110113_ITF02Trip5131\Data\ITFTIS-1006
 startDialog.dataDir.profile = 
-startDialog.fieldTrip.timeSeries = 
+startDialog.fieldTrip.timeSeries = 005131
 startDialog.fieldTrip.profile = 
-startDialog.lowDate.timeSeries = 
+startDialog.lowDate.timeSeries = 0
 startDialog.lowDate.profile = 
-startDialog.highDate.timeSeries = 
+startDialog.highDate.timeSeries = 796006.9802
 startDialog.highDate.profile = 
 
 % default directory for manual data import
 importManager.manualDir = 
 
 % default directory for file export
-exportDialog.defaultDir = 
+exportDialog.defaultDir = D:\Projects\IMOS\ITF\ProcessedData\20110113_ITF02Trip5131
 
 % prompt user to select parser if an appropriate one 
 % cannot be found (if false, the data is not imported)
